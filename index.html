@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch Video</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#0f0f0f">
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #0f0f0f;
+    color: #fff;
+    font-family: -apple-system, Roboto, Segoe UI, sans-serif;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  a {
+    color: #ff0000;
+  }
+</style>
+</head>
+<body>
+<div id="status">Opening YouTube&hellip;</div>
+<script>
+  var VIDEO_ID = "2LMqOdCHQWw";
+  var START_SECONDS = 9;
+
+  var webUrl = "https://www.youtube.com/watch?v=" + VIDEO_ID + "&t=" + START_SECONDS + "s";
+
+  // Android: ask Chrome to hand off to the YouTube app directly.
+  // Falls back to the web URL automatically if the app isn't installed.
+  var intentUrl = "intent://www.youtube.com/watch?v=" + VIDEO_ID + "&t=" + START_SECONDS +
+    "s#Intent;package=com.google.android.youtube;scheme=https;S.browser_fallback_url=" +
+    encodeURIComponent(webUrl) + ";end";
+
+  window.location.href = intentUrl;
+
+  // If the intent hand-off doesn't fire a navigation (e.g. desktop testing),
+  // fall back to the plain web URL after a short delay.
+  setTimeout(function () {
+    document.getElementById("status").innerHTML =
+      'Still here? <a href="' + webUrl + '">Tap to open the video</a>.';
+  }, 1500);
+</script>
+</body>
+</html>
