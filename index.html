@@ -18,25 +18,28 @@
   }
   body {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    -webkit-tap-highlight-color: transparent;
   }
   a {
     color: #ff0000;
   }
-  button {
-    font-size: 1.1rem;
-    padding: 0.9em 1.6em;
-    border: none;
-    border-radius: 999px;
-    background: #ff0000;
-    color: #fff;
-    font-weight: 600;
+  #tapIcon {
+    font-size: 4rem;
+    line-height: 1;
   }
   #status {
     text-align: center;
     padding: 0 1.5rem;
     line-height: 1.6;
+  }
+  #tapLabel {
+    display: block;
+    margin-top: 1.25rem;
+    font-size: 1.3rem;
+    font-weight: 600;
   }
   .hint {
     display: block;
@@ -65,20 +68,22 @@
     window.navigator.standalone === true;
 
   // Attempt an automatic launch right away (works when the tap that opened this
-  // page still counts as user activation). Always show a manual button too, since
-  // that activation doesn't reliably carry over when launched from a home-screen icon.
+  // page still counts as user activation). Chrome requires a real in-page tap to
+  // launch an external app scheme, and that activation doesn't carry over when
+  // this page is opened by tapping a home-screen icon — so the whole screen
+  // below also acts as a single big tap target, no button-hunting required.
   launch();
 
-  if (isStandalone) {
-    document.getElementById("status").innerHTML =
-      '<button id="launchBtn">&#9654; Open in YouTube app</button>' +
-      '<span class="hint">If nothing happened, tap the button above.</span>';
-  } else {
-    document.getElementById("status").innerHTML =
-      '<button id="launchBtn">&#9654; Open in YouTube app</button>' +
-      '<span class="hint">To install: tap &#8942; in Chrome &rarr; "Add to Home screen"</span>';
-  }
-  document.getElementById("launchBtn").addEventListener("click", launch);
+  var hint = isStandalone
+    ? "If nothing happened, tap anywhere on this screen."
+    : 'Tap anywhere to watch. To install: tap &#8942; in Chrome &rarr; "Add to Home screen"';
+
+  document.getElementById("status").innerHTML =
+    '<div id="tapIcon">&#9654;</div>' +
+    '<span id="tapLabel">Tap to open YouTube app</span>' +
+    '<span class="hint">' + hint + '</span>';
+
+  document.body.addEventListener("click", launch);
 </script>
 </body>
 </html>
