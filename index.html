@@ -52,37 +52,33 @@
   var VIDEO_ID = "2LMqOdCHQWw";
   var START_SECONDS = 9;
 
-  var webUrl = "https://www.youtube.com/watch?v=" + VIDEO_ID + "&t=" + START_SECONDS + "s";
-
-  // Android: ask Chrome to hand off to the YouTube app directly.
-  // Falls back to the web URL automatically if the app isn't installed.
-  var intentUrl = "intent://www.youtube.com/watch?v=" + VIDEO_ID + "&t=" + START_SECONDS +
-    "s#Intent;package=com.google.android.youtube;scheme=https;S.browser_fallback_url=" +
-    encodeURIComponent(webUrl) + ";end";
+  // vnd.youtube: is a custom scheme owned exclusively by the YouTube app itself —
+  // no browser registers a handler for it, so this can never silently fall
+  // through to a browser tab the way intent:// with a fallback URL can.
+  var appUrl = "vnd.youtube://www.youtube.com/watch?v=" + VIDEO_ID + "&t=" + START_SECONDS + "s";
 
   function launch() {
-    window.location.href = intentUrl;
+    window.location.href = appUrl;
   }
 
-  // Only running as the installed home-screen app (standalone display mode)?
-  // Then jump straight to the video. As a plain browser tab, auto-redirecting
-  // immediately would prevent Chrome from ever offering "Add to Home screen" —
-  // so show a manual launch button instead.
   var isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
     window.navigator.standalone === true;
 
+  // Attempt an automatic launch right away (works when the tap that opened this
+  // page still counts as user activation). Always show a manual button too, since
+  // that activation doesn't reliably carry over when launched from a home-screen icon.
+  launch();
+
   if (isStandalone) {
-    launch();
-    setTimeout(function () {
-      document.getElementById("status").innerHTML =
-        'Still here? <a href="' + webUrl + '">Tap to open the video</a>.';
-    }, 1500);
+    document.getElementById("status").innerHTML =
+      '<button id="launchBtn">&#9654; Open in YouTube app</button>' +
+      '<span class="hint">If nothing happened, tap the button above.</span>';
   } else {
     document.getElementById("status").innerHTML =
-      '<button id="launchBtn">&#9654; Watch video</button>' +
+      '<button id="launchBtn">&#9654; Open in YouTube app</button>' +
       '<span class="hint">To install: tap &#8942; in Chrome &rarr; "Add to Home screen"</span>';
-    document.getElementById("launchBtn").addEventListener("click", launch);
   }
+  document.getElementById("launchBtn").addEventListener("click", launch);
 </script>
 </body>
 </html>
