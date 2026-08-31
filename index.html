@@ -24,6 +24,26 @@
   a {
     color: #ff0000;
   }
+  button {
+    font-size: 1.1rem;
+    padding: 0.9em 1.6em;
+    border: none;
+    border-radius: 999px;
+    background: #ff0000;
+    color: #fff;
+    font-weight: 600;
+  }
+  #status {
+    text-align: center;
+    padding: 0 1.5rem;
+    line-height: 1.6;
+  }
+  .hint {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #aaa;
+  }
 </style>
 </head>
 <body>
@@ -40,14 +60,29 @@
     "s#Intent;package=com.google.android.youtube;scheme=https;S.browser_fallback_url=" +
     encodeURIComponent(webUrl) + ";end";
 
-  window.location.href = intentUrl;
+  function launch() {
+    window.location.href = intentUrl;
+  }
 
-  // If the intent hand-off doesn't fire a navigation (e.g. desktop testing),
-  // fall back to the plain web URL after a short delay.
-  setTimeout(function () {
+  // Only running as the installed home-screen app (standalone display mode)?
+  // Then jump straight to the video. As a plain browser tab, auto-redirecting
+  // immediately would prevent Chrome from ever offering "Add to Home screen" —
+  // so show a manual launch button instead.
+  var isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  if (isStandalone) {
+    launch();
+    setTimeout(function () {
+      document.getElementById("status").innerHTML =
+        'Still here? <a href="' + webUrl + '">Tap to open the video</a>.';
+    }, 1500);
+  } else {
     document.getElementById("status").innerHTML =
-      'Still here? <a href="' + webUrl + '">Tap to open the video</a>.';
-  }, 1500);
+      '<button id="launchBtn">&#9654; Watch video</button>' +
+      '<span class="hint">To install: tap &#8942; in Chrome &rarr; "Add to Home screen"</span>';
+    document.getElementById("launchBtn").addEventListener("click", launch);
+  }
 </script>
 </body>
 </html>
